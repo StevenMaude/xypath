@@ -171,17 +171,25 @@ triplets = row_header_bag.junction(column_header_bag)
 
 ## Running the tests
 
-Set up a virtual environment, and install `requirements.txt`:
+Set up a virtual environment, and sync dependencies with `uv`:
 
 ```shell
 virtualenv venv
 . venv/bin/activate
-pip install -r requirements.txt
+uv sync --extra test --extra lint
 ```
 
-Then run the tests using `nosetests`:
+Then run the tests using `pytest`:
 
 ```shell
-nosetests # runs all tests
-nosetests test/test_bag.py # runs a single test
+uv run pytest # runs all tests
+uv run pytest test/test_bag.py # runs a single test
+```
+
+You can also use:
+
+```shell
+make lint
+make fix
+make check
 ```
