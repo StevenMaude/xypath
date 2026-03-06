@@ -7,6 +7,7 @@ from pathlib import Path
 
 import xlrd
 from openpyxl import load_workbook
+from openpyxl.utils.exceptions import InvalidFileException
 
 
 class Cell:
@@ -51,6 +52,11 @@ def _load_csv_rows(data):
 
 
 def _load_zip_tables(data):
+    """Load a zip archive as a tableset.
+
+    CSV members keep the historical generic table name ("table") for compatibility
+    with existing loader behavior and tests.
+    """
     tables = []
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         for member in archive.namelist():
@@ -59,9 +65,10 @@ def _load_zip_tables(data):
             with archive.open(member) as raw_file:
                 rows = _load_csv_rows(raw_file.read())
             table_name = (
+                # Keep CSV entry names as "table" for historical compatibility.
                 "table"
                 if Path(member).suffix.lower() == ".csv"
-                else Path(member).name
+                else Path(member).stem
             )
             tables.append(RowSet(rows=rows, name=table_name))
     return tables
@@ -132,7 +139,7 @@ def any_tableset(file_object, extension=""):
 
     try:
         return TableSet(_load_xlsx_tables(data))
-    except Exception:
+    except (InvalidFileException, zipfile.BadZipFile):
         pass
 
     return TableSet([RowSet(_load_csv_rows(data))])

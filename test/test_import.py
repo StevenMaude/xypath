@@ -20,6 +20,12 @@ class Test_Import_Missing(tcore.TMissing):
 
 
 class Test_Import(tcore.TCore):
+    def test_xls_uses_xlrd_sheet(self):
+        table = xypath.Table.from_filename(
+            tcore.get_fixture_filename("wpp.xls"), table_index=0
+        )
+        assert table.sheet.__class__.__module__.startswith("xlrd")
+
     def test_table_has_sheet_properties(self):
         assert self.table.sheet is not None
         assert hasattr(self.table.sheet, "name")
