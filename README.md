@@ -100,12 +100,12 @@ table = xypath.Table.from_file_object(f, table_name='Sheet1')
 ```
 
 
-Or using the underlying messytables library directly:
+Or using XYPath's low-level table loader directly:
 
 ```python
 xypath_tables = []
 with open('spreadsheet.xls', 'rb') as f:
-    for messy_table in messytables.excel.XLSTableSet(f).tables:
+    for messy_table in xypath.tabular.any_tableset(f, extension='xls').tables:
         xypath_table = xypath.Table.from_messy(messy_table)
 ```
 

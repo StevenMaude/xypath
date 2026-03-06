@@ -21,7 +21,8 @@ class Test_Import_Missing(tcore.TMissing):
 
 class Test_Import(tcore.TCore):
     def test_table_has_sheet_properties(self):
-        assert "xlrd" in repr(self.table.sheet)
+        assert self.table.sheet is not None
+        assert hasattr(self.table.sheet, "name")
 
     # import
     def test_from_filename_with_table_name(self):
@@ -73,3 +74,9 @@ class Test_Import(tcore.TCore):
     def test_from_messy(self):
         new_table = xypath.Table.from_messy(self.messy.tables[0])
         assert 265 == len(new_table.filter("Estimates"))
+
+    def test_xlsx_uses_openpyxl_sheet(self):
+        table = xypath.Table.from_filename(
+            tcore.get_fixture_filename("acled.xlsx"), table_index=0
+        )
+        assert "openpyxl" in repr(table.sheet)

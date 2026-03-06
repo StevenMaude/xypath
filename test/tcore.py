@@ -13,9 +13,8 @@ for name in ("Mapping", "MutableMapping", "Sequence"):
     if not hasattr(collections, name):
         setattr(collections, name, getattr(collections.abc, name))
 
-import messytables
-
 import xypath
+import xypath.tabular as tabular
 
 FIXTURE_DIR = pjoin(abspath(dirname(__file__)), "..", "fixtures")
 
@@ -40,7 +39,7 @@ def get_messytables_fixture(name, table_index=0, memoized={}):
     if name not in memoized:
         with open(name, "rb") as fd:
             extension = get_extension(name)
-            messy = messytables.any.any_tableset(fd, extension=extension)
+            messy = tabular.any_tableset(fd, extension=extension)
             messytable = messy.tables[table_index]
         memoized[name] = (messy, xypath.Table.from_messy(messytable))
 

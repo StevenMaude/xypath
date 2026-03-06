@@ -1,15 +1,11 @@
-import messytables
-
-from . import xypath
+from . import tabular, xypath
 
 
 def table_set(filename, *args, **kwargs):
     """get all the tables for a single spreadsheet"""
     extension = filename.rsplit(".", 1)[-1] if "." in filename else ""
     with open(filename, "rb") as f:
-        mt_tableset = messytables.any.any_tableset(
-            f, extension=extension, *args, **kwargs
-        )
+        mt_tableset = tabular.any_tableset(f, extension=extension, *args, **kwargs)
     return mt_tableset
 
 

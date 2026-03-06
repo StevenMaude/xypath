@@ -12,8 +12,6 @@ from collections import defaultdict
 from copy import copy
 from itertools import product, takewhile
 
-import messytables
-
 try:
     from hamcrest.core.matcher import Matcher as HamcrestMatcher
 
@@ -24,6 +22,8 @@ except ImportError:
 import typing
 
 from xypath.contrib import excel as contrib_excel
+
+from . import tabular
 
 REGEX_PATTERN_TYPE = typing.Pattern
 
@@ -778,7 +778,7 @@ class Table(Bag):
     @staticmethod
     def from_filename(filename, table_name=None, table_index=None):
         """Wrapper around from_file_object to handle extension extraction"""
-        # NOTE: this is a messytables table name
+        # NOTE: this is a source table name
         extension = os.path.splitext(filename)[1].strip(".")
         with open(filename, "rb") as f:
             return Table.from_file_object(
@@ -789,13 +789,13 @@ class Table(Bag):
     def from_file_object(fobj, extension="", table_name=None, table_index=None):
         """Load table from file object, you must specify a table's name
         or position number. If you don't know these, try from_messy."""
-        # NOTE this is a messytables table name
+        # NOTE this is a source table name
         if (table_name is not None and table_index is not None) or (
             table_name is None and table_index is None
         ):
             raise TypeError("Must give exactly one of table_name, table_index")
 
-        table_set = messytables.any.any_tableset(fobj, extension=extension)
+        table_set = tabular.any_tableset(fobj, extension=extension)
 
         if table_name is not None:
             return Table.from_messy(table_set[table_name])
@@ -804,14 +804,14 @@ class Table(Bag):
 
     @staticmethod
     def from_messy(messy_rowset):
-        """Import a rowset (table) from messytables, e.g. to work with each
+        """Import a rowset (table) from a source table set, e.g. to work with each
         table in turn:
-            tables = messytables.any.any_tableset(fobj)
+            tables = xypath.tabular.any_tableset(fobj)
             for mt_table in tables:
                 xy_table = xypath.Table.from_messy(mt_table)
                 ..."""
 
-        assert isinstance(messy_rowset, messytables.core.RowSet), (
+        assert isinstance(messy_rowset, tabular.RowSet), (
             f"Expected a RowSet, got a {type(messy_rowset)!r}"
         )
         new_table = Table.from_iterable(
