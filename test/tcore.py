@@ -1,36 +1,24 @@
+from __future__ import absolute_import
 #!/usr/bin/env python
-import collections
-import collections.abc
 import sys
-
-import pytest
-
-sys.path.append("xypath")
-from os.path import abspath, dirname, splitext
-from os.path import join as pjoin
-
-for name in ("Mapping", "MutableMapping", "Sequence"):
-    if not hasattr(collections, name):
-        setattr(collections, name, getattr(collections.abc, name))
-
-import messytables
-
+import unittest
+sys.path.append('xypath')
 import xypath
 
-FIXTURE_DIR = pjoin(abspath(dirname(__file__)), "..", "fixtures")
+import messytables
+from os.path import dirname, abspath, join as pjoin, splitext
 
+FIXTURE_DIR = pjoin(abspath(dirname(__file__)), '..', 'fixtures')
 
 def get_extension(filename):
     """
     >>> get_extension('/foo/bar/test.xls')
     'xls'
     """
-    return splitext(filename)[1].strip(".")
-
+    return splitext(filename)[1].strip('.')
 
 def get_fixture_filename(name):
     return pjoin(FIXTURE_DIR, name)
-
 
 def get_messytables_fixture(name, table_index=0, memoized={}):
     """
@@ -39,15 +27,13 @@ def get_messytables_fixture(name, table_index=0, memoized={}):
 
     if name not in memoized:
         with open(name, "rb") as fd:
-            extension = get_extension(name)
-            messy = messytables.any.any_tableset(fd, extension=extension)
+            messy = messytables.any.any_tableset(fd)
             messytable = messy.tables[table_index]
         memoized[name] = (messy, xypath.Table.from_messy(messytable))
 
     return memoized[name]
 
-
-class TCore:
+class TCore(unittest.TestCase):
     @classmethod
     def setup_class(cls):
         cls.wpp_filename = get_fixture_filename("wpp.xls")
@@ -60,12 +46,14 @@ class TCore:
     # exception class, and the exception message. Based on:
     # http://stackoverflow.com/questions/8672754
     def assertRaisesWithMessage(self, func, exception_type, msg, *args, **kwargs):
-        with pytest.raises(exception_type) as exc_info:
+        try:
             func(*args, **kwargs)
-        assert str(exc_info.value) == msg
+            self.fail('No exception was raised')
+        except Exception as inst:
+            self.assertIsInstance(inst, exception_type)
+            self.assertEqual(str(inst), msg)
 
-
-class TMissing:
+class TMissing(unittest.TestCase):
     @classmethod
     def setup_class(cls):
         cls.wpp_filename = get_fixture_filename("missingcell.csv")

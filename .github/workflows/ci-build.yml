@@ -11,22 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python: [3.5, 3.6, 3.7, 3.8]
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
-          allow-prereleases: true
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@5a095e7a2014a4212f075830d4f7277575a9d098
+      - name: Install packages
+        run: pip install -r requirements.txt -r hamcrest.txt
 
       - name: Run tests
-        run: |
-          uv sync --frozen --extra test
-          uv run pytest
+        run: nosetests

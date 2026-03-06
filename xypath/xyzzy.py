@@ -1,8 +1,8 @@
+from __future__ import absolute_import
 #!/usr/bin/env python
 
 from collections import OrderedDict
 from itertools import groupby
-
 from .xypath import Bag
 
 
@@ -12,13 +12,10 @@ class LookupFailureError(Exception):
 
 def group(self, keyfunc=None):  # XYZZY
     """get a dictionary containing lists of singleton bags with the same
-    value (by default; other functions available)"""
+       value (by default; other functions available)"""
     groups = {}
     if keyfunc is None:
-
-        def keyfunc(x):
-            return x.value
-
+        keyfunc = lambda x: x.value
     protogroups = groupby(sorted(self, key=keyfunc), key=keyfunc)
     for k, v in protogroups:
         newbag = Bag.from_list(v)
@@ -29,8 +26,8 @@ def group(self, keyfunc=None):  # XYZZY
 
 def headerheader(self, dir1, dir2, **kwargs):  # XYZZY
     """Given a header (e.g. "COUNTRY") get all things in one direction
-    from it (e.g. down: "FRANCE", "GERMANY"), then use those to get
-    a suitable xyzzy dict"""
+       from it (e.g. down: "FRANCE", "GERMANY"), then use those to get
+       a suitable xyzzy dict"""
     header = group(self.fill(dir1), **kwargs)
     return {k: header[k].fill(dir2) for k in header}
 
@@ -46,7 +43,7 @@ def are_distinct(fields):
     return len(allbags) == bagcount
 
 
-def xyzzy(self, fields, valuename="_value"):  # XYZZY
+def xyzzy(self, fields, valuename='_value'):  # XYZZY
     # assert are_distinct(list(fields.values()))
     # function fixed: wasn't distinct in first place
     fieldkeys = list(fields.keys())

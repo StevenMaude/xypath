@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Module for pretty-printing tabular data.
 
 # Imported from https://bitbucket.org/astanin/python-tabulate
@@ -27,10 +29,16 @@
 
 """Pretty-print tabular data."""
 
+from __future__ import print_function
+from __future__ import unicode_literals
+from __future__ import absolute_import
 from collections import namedtuple
 from platform import python_version_tuple
 import re
+from six.moves import map
 import six
+from six.moves import range
+from six.moves import zip
 
 
 if python_version_tuple()[0] < "3":
@@ -38,7 +46,7 @@ if python_version_tuple()[0] < "3":
     _none_type = type(None)
     _int_type = int
     _float_type = float
-    _text_type = str
+    _text_type = six.text_type
     _binary_type = str
 else:
     from itertools import zip_longest as izip_longest
@@ -154,7 +162,7 @@ _table_formats = {"simple":
                               without_header_hide=["linebelowheader"])}
 
 
-_invisible_codes = re.compile("\x1b\\[\\d*m")  # ANSI color codes
+_invisible_codes = re.compile("\x1b\[\d*m")  # ANSI color codes
 
 
 def simple_separated_format(separator):
@@ -268,7 +276,7 @@ def _padleft(width, s, has_invisible=True):
 
     """
     iwidth = width + len(s) - len(_strip_invisible(s)) if has_invisible else width
-    fmt = "{0:>%ds}" % iwidth
+    fmt = u"{0:>%ds}" % iwidth
     return fmt.format(s)
 
 
@@ -280,7 +288,7 @@ def _padright(width, s, has_invisible=True):
 
     """
     iwidth = width + len(s) - len(_strip_invisible(s)) if has_invisible else width
-    fmt = "{0:<%ds}" % iwidth
+    fmt = u"{0:<%ds}" % iwidth
     return fmt.format(s)
 
 
@@ -292,7 +300,7 @@ def _padboth(width, s, has_invisible=True):
 
     """
     iwidth = width + len(s) - len(_strip_invisible(s)) if has_invisible else width
-    fmt = "{0:^%ds}" % iwidth
+    fmt = u"{0:^%ds}" % iwidth
     return fmt.format(s)
 
 
@@ -375,7 +383,7 @@ def _column_type(strings, has_invisible=True):
     return reduce(_more_generic, types, int)
 
 
-def _format(val, valtype, floatfmt, missingval=""):
+def _format(val, valtype, floatfmt, missingval=u""):
     """Format a value accoding to its type.
 
     Unicode is supported:
@@ -391,11 +399,11 @@ def _format(val, valtype, floatfmt, missingval=""):
         return missingval
 
     if valtype in [int, _binary_type, _text_type]:
-        return f"{val}"
+        return u"{0}".format(val)
     elif valtype is float:
         return format(float(val), floatfmt)
     else:
-        return f"{val}"
+        return u"{0}".format(val)
 
 
 def _align_header(header, alignment, width):
@@ -462,14 +470,14 @@ def _normalize_tabular_data(tabular_data, headers):
        nhs = len(headers)
        ncols = len(rows[0])
        if nhs < ncols:
-           headers = [""]*(ncols - nhs) + headers
+           headers = [u""]*(ncols - nhs) + headers
 
     return rows, headers
 
 
 def tabulate(tabular_data, headers=[], tablefmt="simple",
              floatfmt="g", numalign="decimal", stralign="left",
-             missingval=""):
+             missingval=u""):
     """Format a fixed width table for pretty printing.
 
     >>> print(tabulate([[1, 2.34], [-56, "8.999"], ["2", "10001"]]))
@@ -667,8 +675,8 @@ def tabulate(tabular_data, headers=[], tablefmt="simple",
 
     # optimization: look for ANSI control codes once,
     # enable smart width functions only if a control code is found
-    plain_text = '\n'.join(['\t'.join(map(_text_type, headers))] + \
-                            ['\t'.join(map(_text_type, row)) for row in list_of_lists])
+    plain_text = u'\n'.join(['\t'.join(map(_text_type, headers))] + \
+                            [u'\t'.join(map(_text_type, row)) for row in list_of_lists])
     has_invisible = re.search(_invisible_codes, plain_text)
     if has_invisible:
         width_fn = _visible_width
@@ -705,7 +713,7 @@ def tabulate(tabular_data, headers=[], tablefmt="simple",
 
 def _build_row(cells, padding, begin, sep, end):
     "Return a string which represents a row of data cells."
-    pad = " "*padding
+    pad = u" "*padding
     padded_cells = [pad + cell + pad for cell in cells]
     return (begin + sep.join(padded_cells) + end).rstrip()
 

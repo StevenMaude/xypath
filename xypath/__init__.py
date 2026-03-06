@@ -1,2 +1,3 @@
-from . import _compat, xyzzy
+from __future__ import absolute_import
 from .xypath import *
+from . import xyzzy
