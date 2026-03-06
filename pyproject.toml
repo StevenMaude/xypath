@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xypath"
+version = "1.1.1"
+description = "Extract fields from tabular data with complex expressions."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "BSD-3-Clause"
+authors = [{ name = "The Sensible Code Company Ltd", email = "feedback@sensiblecode.io" }]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "messytables==0.15.2",
+  "xlrd==1.2.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "PyHamcrest>=2.1.0",
+  "pytest>=8.4.0",
+]
+docs = [
+  "sphinx>=7.4.7,<8.0",
+]
+lint = [
+  "ruff>=0.11.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["xypath*"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = [".", "test"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+exclude = ["xypath/extern/tabulate.py"]
+
+[tool.ruff.lint]
+select = ["E", "F"]
+extend-select = ["A", "I", "UP", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+"docs/conf.py" = ["A001"]
+"test/tcore.py" = ["E402"]
+"xypath/__init__.py" = ["F401", "F403"]

@@ -1,23 +1,17 @@
-FROM ubuntu:20.04
+FROM python:3.13-slim
 
-RUN apt-get update && \
-    apt-get install -y \
-        locales \
-        python3-pip
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_LINK_MODE=copy
 
-RUN locale-gen en_GB.UTF-8
+WORKDIR /app
 
-RUN mkdir /home/nobody && \
-    chown nobody /home/nobody
+RUN pip install --no-cache-dir uv
 
-USER nobody
-ENV HOME=/home/nobody \
-    PATH=/home/nobody/.local/bin:$PATH \
-    LANG=en_GB.UTF-8
-# LANG needed for httpretty install on Py3
+COPY pyproject.toml uv.lock ./
+COPY xypath ./xypath
+RUN uv sync --frozen --extra test
 
-WORKDIR /home/nobody
+COPY . .
 
-RUN pip3 install --user nose messytables pyhamcrest
-
-COPY . /home/nobody/
+CMD ["uv", "run", "--frozen", "--extra", "test", "pytest"]
