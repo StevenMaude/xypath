@@ -100,12 +100,12 @@ table = xypath.Table.from_file_object(f, table_name='Sheet1')
 ```
 
 
-Or using the underlying messytables library directly:
+Or using XYPath's low-level table loader directly:
 
 ```python
 xypath_tables = []
 with open('spreadsheet.xls', 'rb') as f:
-    for messy_table in messytables.excel.XLSTableSet(f).tables:
+    for messy_table in xypath.tabular.any_tableset(f, extension='xls').tables:
         xypath_table = xypath.Table.from_messy(messy_table)
 ```
 
@@ -171,17 +171,25 @@ triplets = row_header_bag.junction(column_header_bag)
 
 ## Running the tests
 
-Set up a virtual environment, and install `requirements.txt`:
+Set up a virtual environment, and sync dependencies with `uv`:
 
 ```shell
 virtualenv venv
 . venv/bin/activate
-pip install -r requirements.txt
+uv sync --extra test --extra lint
 ```
 
-Then run the tests using `nosetests`:
+Then run the tests using `pytest`:
 
 ```shell
-nosetests # runs all tests
-nosetests test/test_bag.py # runs a single test
+uv run pytest # runs all tests
+uv run pytest test/test_bag.py # runs a single test
+```
+
+You can also use:
+
+```shell
+make lint
+make fix
+make check
 ```
