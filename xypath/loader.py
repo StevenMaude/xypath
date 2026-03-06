@@ -1,13 +1,17 @@
-from __future__ import absolute_import
 import messytables
+
 from . import xypath
-import six
+
 
 def table_set(filename, *args, **kwargs):
     """get all the tables for a single spreadsheet"""
-    with open(filename, 'rb') as f:
-        mt_tableset = messytables.any.any_tableset(f, *args, **kwargs)
+    extension = filename.rsplit(".", 1)[-1] if "." in filename else ""
+    with open(filename, "rb") as f:
+        mt_tableset = messytables.any.any_tableset(
+            f, extension=extension, *args, **kwargs
+        )
     return mt_tableset
+
 
 def get_sheets(mt_tableset, ids):
     """get a subset of the tables from a tableset.
@@ -29,18 +33,18 @@ def get_sheets(mt_tableset, ids):
         xy_table.index = table_index
         return xy_table
 
-    if isinstance(ids, (int, six.string_types)) or callable(ids):
+    if isinstance(ids, (int, str)) or callable(ids):
         # it's a single thing, listify it
-        ids = (ids, )
+        ids = (ids,)
 
     for table_index, mt_table in enumerate(mt_tableset.tables):
         for identifier in ids:
-            if identifier == '*':
+            if identifier == "*":
                 yield xy()
             elif isinstance(identifier, int):
                 if identifier == table_index:
                     yield xy()
-            elif isinstance(identifier, six.string_types):
+            elif isinstance(identifier, str):
                 if identifier.strip() == mt_table.name.strip():
                     yield xy()
             elif callable(identifier):
@@ -48,4 +52,6 @@ def get_sheets(mt_tableset, ids):
                 if identifier(xy_table):
                     yield xy_table
             else:
-                raise NotImplementedError("Don't know what to do with a {!r}".format(type(identifier)))
+                raise NotImplementedError(
+                    f"Don't know what to do with a {type(identifier)!r}"
+                )
